@@ -1,9 +1,10 @@
-import 'package:fieldsync/features/sync/data/fake_sync_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'app/di.dart';
+import 'features/sync/domain/sync_repository.dart';
 import 'features/sync/domain/sync_status.dart';
+import 'features/sync/presentation/bloc/sync_event.dart';
 import 'features/sync/presentation/bloc/sync_state.dart';
 import 'features/sync/presentation/bloc/sync_status_bloc.dart';
 
@@ -48,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             BlocProvider(
               create: (context) =>
-                  SyncStatusBloc(repository: FakeSyncRepository()),
+                  SyncStatusBloc(repository: getIt<SyncRepository>()),
 
               child: BlocSelector<SyncStatusBloc, SyncState, SyncStatus>(
                 selector: (state) {
@@ -57,7 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 builder: (context, status) {
                   return Column(
                     children: [
-                      ElevatedButton(onPressed: () {}, child: Text('Sync now')),
+                      ElevatedButton(
+                        onPressed: () => context.read<SyncStatusBloc>().add(
+                          const SyncRequested(),
+                        ),
+                        child: Text('Sync now'),
+                      ),
                       Text('Current status: $status'),
                     ],
                   );
