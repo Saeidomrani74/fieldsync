@@ -1,0 +1,9 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]        # ← blank 1: tags
+permissions:
+  contents: write       # ← blank 2: contents
+
+jobs:
