@@ -1,4 +1,4 @@
-package com.example.seal
+package com.example.fieldsync
 
 import io.flutter.embedding.android.FlutterActivity
 

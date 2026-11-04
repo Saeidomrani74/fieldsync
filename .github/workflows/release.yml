@@ -1,9 +1,45 @@
-name: Release
-
 on:
   push:
-    tags: [ 'v*' ]        # ← blank 1: tags
+    tags: ['v*']
 permissions:
-  contents: write       # ← blank 2: contents
+  contents: write
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Copied verbatim from ci.yml — same pins, no new third-party action
+      - uses: actions/checkout@v7.0.1
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+
+      - name: Write key.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          {
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "storeFile=upload-keystore.jks"
+          } > android/key.properties
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: List APK output
+        run: ls build/app/outputs/flutter-apk
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" build/app/outputs/flutter-apk/app-release.apk --generate-notes
