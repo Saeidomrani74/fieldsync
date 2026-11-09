@@ -7,6 +7,7 @@ import 'features/sync/domain/sync_status.dart';
 import 'features/sync/presentation/bloc/sync_event.dart';
 import 'features/sync/presentation/bloc/sync_state.dart';
 import 'features/sync/presentation/bloc/sync_status_bloc.dart';
+import 'features/sync/presentation/bloc/sync_status_text.dart';
 
 void main() {
   setupDi();
@@ -64,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         child: Text('Sync now'),
                       ),
-                      Text('Current status: $status'),
+                      Text('Current status: ${syncStatusText(status)}'),
                     ],
                   );
                 },
